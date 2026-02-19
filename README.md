@@ -30,7 +30,7 @@ graph LR
 
 | Parameter        | Value               |
 |------------------|---------------------|
-| **Organization** | `autem`             |
+| **Organization** | `acme-corp`         |
 | **Bucket**       | `ignition`          |
 | **Token**        | `secret-auth-token` |
 
@@ -146,7 +146,7 @@ The dashboard includes:
 2. Configure:
    - **Query Language**: `Flux`
    - **URL**: `http://influxdb:8086`
-   - **Organization**: `autem`
+   - **Organization**: `acme-corp`
    - **Token**: `secret-auth-token`
    - **Default Bucket**: `ignition`
 3. Save & Test
