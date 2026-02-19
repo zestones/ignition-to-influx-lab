@@ -1,0 +1,86 @@
+services:
+  # ============================================
+  # OPC-UA Simulator
+  # ============================================
+  opcua-simulator:
+    image: mcr.microsoft.com/iotedge/opc-plc:latest
+    hostname: opcua-simulator
+    ports:
+      - "50000:50000"
+    command: >
+      --pn=50000
+      --autoaccept
+      --unsecuretransport
+      --sph
+      --fn=10
+      --fr=1
+      --ft=uint
+      --fn2=5
+      --fr2=2
+      --ft2=double
+    restart: unless-stopped
+
+  # ============================================
+  # Ignition Gateway
+  # ============================================
+  ignition:
+    image: inductiveautomation/ignition:8.1.43
+    ports:
+      - "8089:8088"
+      - "8044:8043"
+    volumes:
+      - ignition-data:/usr/local/bin/ignition/data
+    environment:
+      - ACCEPT_IGNITION_EULA=Y
+      - GATEWAY_ADMIN_PASSWORD=password
+      - IGNITION_EDITION=standard
+    depends_on:
+      - opcua-simulator
+      - influxdb
+    restart: unless-stopped
+
+  # ============================================
+  # InfluxDB
+  # ============================================
+  influxdb:
+    image: influxdb:2.7
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password123
+      - DOCKER_INFLUXDB_INIT_ORG=acme-corp
+      - DOCKER_INFLUXDB_INIT_BUCKET=ignition
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=secret-auth-token
+    restart: unless-stopped
+
+  # ============================================
+  # Grafana
+  # ============================================
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - influxdb
+    restart: unless-stopped
+
+networks:
+  default:
+    name: ignition-opc-lab
+
+volumes:
+  ignition-data:
+  influxdb-data:
+  influxdb-config:
+  grafana-data:
