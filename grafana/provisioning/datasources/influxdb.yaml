@@ -8,7 +8,7 @@ datasources:
     uid: influxdb
     jsonData:
       version: Flux
-      organization: autem
+      organization: acme-corp
       defaultBucket: ignition
       tlsSkipVerify: true
     secureJsonData:
